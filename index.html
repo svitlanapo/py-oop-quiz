@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тренажер: базові конструкції Python та основи ООП</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#17233a;--mute:#5b6a85;--line:#d5deee;--blue:#306998;--blue2:#e6eff8;--yel:#ffd43b;--ok:#17803d;--okbg:#e3f6e9;--bad:#b42318;--badbg:#fdeceb;--hint:#7a5b00;--hintbg:#fff6d6;--code:#14213d;--codeink:#e8eefc}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1829;--card:#18243b;--ink:#e8eefc;--mute:#9db0d0;--line:#2b3a58;--blue:#6aa7de;--blue2:#1e3150;--ok:#5fd18a;--okbg:#14352a;--bad:#ff9a92;--badbg:#3b1b1d;--hint:#ffd980;--hintbg:#3a3114;--code:#0a1224;--codeink:#e8eefc}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+main{max-width:720px;margin:0 auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px;font-weight:600}
+.timer{background:var(--yel);color:#3a2f00;padding:4px 14px;border-radius:99px;font-variant-numeric:tabular-nums}
+.bar{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .4s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+h1{font-size:1.6rem;line-height:1.25;margin:0 0 10px}
+h2{font-size:1.2rem;line-height:1.4;margin:10px 0 12px}
+p{margin:0 0 12px}
+ul.rules{padding-left:20px;margin:0 0 18px;color:var(--mute)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--mute);font-size:.92rem}
+.tag{background:var(--blue2);color:var(--blue);padding:3px 12px;border-radius:99px;font-weight:600}
+.att{margin-left:auto;font-weight:600;color:var(--ink)}
+pre{background:var(--code);color:var(--codeink);padding:14px 16px;border-radius:12px;overflow-x:auto;margin:0 0 14px;font:15px/1.55 ui-monospace,Consolas,Menlo,monospace}
+.opt{display:block;width:100%;text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:10px;font:inherit;cursor:pointer;min-height:54px}
+.opt.m{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:15px;white-space:pre-wrap}
+.opt:hover:not(:disabled){border-color:var(--blue)}
+.opt.sel{border-color:var(--blue);background:var(--blue2)}
+.opt.wrong{border-color:var(--bad);background:var(--badbg);text-decoration:line-through;opacity:.8}
+.opt.right{border-color:var(--ok);background:var(--okbg)}
+.opt:disabled{cursor:default}
+input[type=text]{width:100%;font:16px ui-monospace,Consolas,Menlo,monospace;padding:14px 16px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);margin-bottom:12px}
+input[type=text]:focus{outline:none;border-color:var(--blue)}
+input:disabled{opacity:.7}
+.btn{display:block;width:100%;min-height:54px;border:0;border-radius:14px;background:var(--blue);color:#fff;font-family:inherit;font-weight:600;font-size:1.05rem;cursor:pointer;margin-top:4px}
+.btn.alt{background:var(--yel);color:#3a2f00}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--yel);outline-offset:2px}
+.fb{border-radius:12px;padding:12px 14px;margin:12px 0;font-size:.97rem}
+.fb.ok{background:var(--okbg);color:var(--ok)}
+.fb.bad{background:var(--badbg);color:var(--bad)}
+.fb.hint{background:var(--hintbg);color:var(--hint)}
+.fb.ex{background:var(--blue2);color:var(--ink)}
+.fb b{display:block}
+.score{font-size:3.2rem;font-weight:800;line-height:1.1;color:var(--blue)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.stats div{background:var(--blue2);border-radius:14px;padding:12px;text-align:center}
+.stats strong{display:block;font-size:1.3rem}
+.stats span{font-size:.85rem;color:var(--mute)}
+.chips{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 16px}
+.chip{text-align:center;border-radius:10px;padding:6px 2px;font-weight:700;font-size:.95rem;border:2px solid var(--line)}
+.chip small{display:block;font-weight:400;color:var(--mute);font-size:.72rem}
+.chip.p3{background:var(--okbg);border-color:var(--ok)}.chip.p2,.chip.p1{background:var(--hintbg);border-color:var(--yel)}.chip.p0{background:var(--badbg);border-color:var(--bad)}
+@media(max-width:420px){body{padding:10px;font-size:16px}.card{padding:16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><span id="ttl">Python: повторення</span><span class="timer" id="tm" hidden>00:00</span></header>
+<div class="bar"><i id="pb"></i></div>
+<div id="app"></div>
+</main>
+<script>
+const T=[
+{lv:"Початковий",q:"Що виведе програма?",code:"x = 5\ny = 3\nprint(x + y)",o:["8","53","x + y","Помилку"],a:"8",
+h:["Змінні x та y містять числа, а не рядки.","Оператор + між двома числами виконує додавання, а не з’єднання тексту.","5 + 3 = 8. Функція print() виводить результат обчислення виразу."],
+e:"Змінні x та y — числа (int), тому + додає їх: 5 + 3 = 8."},
+{lv:"Початковий",q:"Напишіть команду, яка виведе на екран слово: Привіт",inp:1,ph:"Ваш код",re:/^print\(\s*(["'])Привіт\1\s*\)$/,ans:'print("Привіт")',
+h:["Для виводу на екран є функція з назвою print.","Текст пишуть у дужках після print і беруть у лапки.","Відповідь має вигляд print(\"...\") — у лапках слово Привіт."],
+e:"Текст заключають у лапки й передають у print(): print(\"Привіт\")."},
+{lv:"Початковий",q:"У якому рядку є синтаксична помилка?",o:['print("Привіт")','print("Привіт)','name = "Оля"','x = 10'],a:'print("Привіт)',m:1,
+h:["Подивіться на лапки: чи кожна відкрита лапка має пару?","Текст у print має починатися й закінчуватися лапками.","У рядку print(\"Привіт) немає закриваючої лапки після слова Привіт."],
+e:"Рядок потрібно закривати лапками: print(\"Привіт\"). Без закриваючої лапки Python видасть SyntaxError."},
+{lv:"Початковий",q:"Що виведе програма?",code:"a = 10\nb = 4\nprint(a - b)",o:["6","14","104","a - b"],a:"6",
+h:["Змінні a та b містять числа.","Оператор - віднімає друге число від першого.","10 - 4 = 6. print виводить значення виразу, а не його запис."],
+e:"Змінні a та b — числа, тому a - b дорівнює 10 - 4 = 6."},
+{lv:"Середній",q:"Що виведе програма?",code:'score = 75\nif score >= 90:\n    print("A")\nelif score >= 70:\n    print("B")\nelse:\n    print("C")',o:["A","B","C","A та B"],a:"B",
+h:["Умови перевіряються зверху вниз.","Виконується лише перша гілка, умова якої істинна.","75 >= 90 — хибно, 75 >= 70 — істинно, тому спрацює elif, а else пропускається."],
+e:"Перша умова хибна, друга (75 >= 70) істинна — виконується її гілка й виводиться B."},
+{lv:"Середній",q:"Що виведе програма? (True або False)",code:"x = 15\nprint(x > 10 and x % 2 == 0)",inp:1,ph:"True або False",re:/^false$/i,ans:"False",
+h:["Оператор and дає True, лише якщо істинні обидві частини.","Перевірте окремо: чи x > 10? чи x парне?","15 > 10 — True, але 15 % 2 дорівнює 1, тож 15 % 2 == 0 — False. True and False = False."],
+e:"x > 10 істинно, а x % 2 == 0 хибно (15 непарне). Для and потрібні обидві істини, тому результат False."},
+{lv:"Достатній",q:"Що виведе програма? Введіть число.",code:"nums = [2, 4, 6]\ntotal = 0\nfor n in nums:\n    total += n\nprint(total)",inp:1,ph:"Число",re:/^12$/,ans:"12",
+h:["Цикл for бере елементи списку по одному.","total += n означає total = total + n; спершу total = 0.","Додаємо по черзі: 0+2, потім +4, потім +6. print стоїть після циклу, тож виводить лише підсумок."],
+e:"Накопичувана сума: 0 → 2 → 6 → 12. print() розташований поза циклом, тому виводиться один раз — 12."},
+{lv:"Достатній",q:"Яке значення матиме n після завершення циклу?",code:"n = 1\nwhile n < 20:\n    n *= 2\nprint(n)",o:["16","20","32","31"],a:"32",
+h:["Цикл повторюється, поки умова n < 20 істинна.","Значення n по черзі: 1, 2, 4, 8, ...","Після 16 умова 16 < 20 ще істинна, тож n стане 32. Тепер 32 < 20 хибно — вихід із циклу."],
+e:"n: 1 → 2 → 4 → 8 → 16 → 32. Як тільки n = 32, умова n < 20 хибна й цикл завершується."},
+{lv:"Високий",q:"Який конструктор правильно створює атрибут name для об’єкта?",code:"class Dog:\n    # ... конструктор ...\n\nd = Dog(\"Рекс\")\nprint(d.name)  # Рекс",o:["def __init__(self, name):\n    self.name = name","def init(self, name):\n    self.name = name","def __init__(name):\n    name = name","def __init__(self, name):\n    name = name"],a:"def __init__(self, name):\n    self.name = name",m:1,
+h:["Конструктор має спеціальну назву з подвійними підкресленнями.","Першим параметром методу завжди є self.","Атрибут об’єкта створюється через self.name = ..., інакше значення зникне після виходу з методу."],
+e:"Конструктор — це метод __init__ з параметром self. Запис self.name = name зберігає значення в атрибуті об’єкта."},
+{lv:"Високий",q:"Що виведе програма? Введіть число.",code:"class Counter:\n    def __init__(self):\n        self.count = 0\n    def add(self):\n        self.count += 1\n\nc = Counter()\nc.add()\nc.add()\nprint(c.count)",inp:1,ph:"Число",re:/^2$/,ans:"2",
+h:["Спочатку створюється екземпляр c, і конструктор задає count.","Початкове значення count дорівнює 0.","Метод add() викликано двічі, кожен раз збільшує self.count на 1: 0 → 1 → 2."],
+e:"Конструктор встановлює count = 0. Два виклики c.add() збільшують його до 2, тому print(c.count) виводить 2."}
+];
+const $=id=>document.getElementById(id),app=$("app");
+let i,att,score,pts,t0,timer,done,wrong,sel,total,rt,used;
+function fmt(ms){const s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function intro(){
+ clearInterval(timer);$("tm").hidden=true;$("pb").style.width="0";app.innerHTML="";
+ const c=el("div","card");c.append(el("h1","","Повторення базових конструкцій Python та основ ООП"));
+ c.append(el("p","","Тренажер для учнів 10 класу: 10 завдань різної складності — від виводу даних до класів та об’єктів."));
+ const u=el("ul","rules");["На кожне завдання — до 3 спроб; після помилки з’являється підказка (кожна наступна докладніша).","Бали: 1-ша спроба — 3, 2-га — 2, 3-тя — 1, без успіху — 0. Максимум — 30 балів.","Якщо завдання не вдалося, його можна пройти ще один раз (до 3 спроб, але за повторне виконання — 1 бал).","Час вимірюється з моменту старту до кінця роботи.","Дані ніде не зберігаються й нікуди не передаються."].forEach(t=>u.append(el("li","",t)));
+ c.append(u);const b=el("button","btn","Розпочати");b.onclick=start;c.append(b);app.append(c);
+}
+function start(){i=0;rt=false;used=[];score=0;pts=[];t0=Date.now();$("tm").hidden=false;$("tm").textContent="00:00";clearInterval(timer);timer=setInterval(()=>$("tm").textContent=fmt(Date.now()-t0),1000);task()}
+function task(){
+ const k=T[i];att=0;done=false;sel=null;wrong=[];
+ $("pb").style.width=(i/T.length*100)+"%";app.innerHTML="";
+ const c=el("div","card"),m=el("div","meta");
+ m.append(el("span","","Завдання "+(i+1)+" з "+T.length),el("span","tag",k.lv+" рівень"));if(rt)m.append(el("span","tag","Повторно"));
+ const at=el("span","att");at.id="at";m.append(at);c.append(m,el("h2","",k.q));
+ if(k.code)c.append(el("pre","",k.code));
+ const box=el("div");box.id="in";
+ if(k.inp){const x=el("input");x.type="text";x.id="x";x.placeholder=k.ph;x.autocomplete="off";x.spellcheck=false;x.setAttribute("autocapitalize","none");x.onkeydown=e=>{if(e.key==="Enter")check()};box.append(x)}
+ else{const o=k.o.map(v=>v).sort(()=>Math.random()-.5);o.forEach(v=>{const b=el("button","opt"+(k.m?" m":""),v);b.type="button";b.onclick=()=>{sel=v;[...box.children].forEach(z=>z.classList.remove("sel"));b.classList.add("sel");$("go").disabled=false};box.append(b)})}
+ c.append(box);const fb=el("div");fb.id="fb";c.append(fb);
+ const g=el("button","btn","Перевірити");g.id="go";g.onclick=check;if(!k.inp)g.disabled=true;c.append(g);
+ app.append(c);upd();if(k.inp)$("x").focus();
+}
+function upd(){$("at").textContent="Спроба "+Math.min(att+1,3)+" з 3"}
+function msg(cls,title,txt){const f=el("div","fb "+cls);f.append(el("b","",title),document.createTextNode(txt));return f}
+function check(){
+ if(done)return;const k=T[i],fb=$("fb");let v;
+ if(k.inp){v=$("x").value.trim();if(!v){fb.replaceChildren(msg("hint","","Спершу введіть відповідь."));return}}
+ else{v=sel;if(v==null)return}
+ const ok=k.inp?k.re.test(v.replace(/\s+/g," ")):v===k.a;
+ att++;
+ if(ok){const p=rt?1:4-att;score+=p;pts[i]=p;finish(msg("ok","Правильно! +"+p+" "+(p===1?"бал":p<5&&p>1?"бали":"балів"),""),k,true)}
+ else if(att>=3){pts[i]=0;finish(msg("bad","Спроби вичерпано (0 балів).",""),k,false)}
+ else{
+  fb.replaceChildren(msg("bad","Не зовсім так.",""),msg("hint","Підказка "+att+": ",k.h[att-1]));
+  if(k.inp){$("x").select()}else{[...$("in").children].forEach(b=>{if(b.textContent===v){b.classList.add("wrong");b.disabled=true}});sel=null;$("go").disabled=true}
+  upd();
+ }
+}
+function finish(first,k,ok){
+ done=true;const fb=$("fb");fb.replaceChildren(first);
+ if(!ok){fb.append(msg("hint","Підказка 3: ",k.h[2]));fb.append(msg("ex","Правильна відповідь: ",k.inp?k.ans:k.a))}
+ fb.append(msg("ex","Пояснення: ",k.e));
+ if(k.inp)$("x").disabled=true;else[...$("in").children].forEach(b=>{b.disabled=true;b.classList.remove("sel");if(b.textContent===k.a)b.classList.add("right")});
+ $("at").textContent="Спроба "+att+" з 3";
+ const g=$("go");g.disabled=false;g.className="btn alt";g.textContent=i<T.length-1?"Далі":"Показати результат";g.onclick=()=>{i++;rt=false;i<T.length?task():result()};g.focus();
+ if(!ok&&!rt&&!used[i]){const q=el("button","btn","Пройти це завдання ще раз (1 раз, 1 бал)");q.onclick=()=>{used[i]=1;rt=true;task()};g.after(q)}
+}
+function result(){
+ clearInterval(timer);const ms=Date.now()-t0,pc=Math.round(score/30*100);
+ $("pb").style.width="100%";app.innerHTML="";
+ const c=el("div","card");c.append(el("h1","","Результат"));
+ const s=el("div","score",score+" / 30");c.append(s);
+ const st=el("div","stats");[[pc+"%","успішність"],[fmt(ms),"час"],[pts.filter(p=>p>0).length+" з 10","виконано"]].forEach(a=>{const d=el("div");d.append(el("strong","",a[0]),el("span","",a[1]));st.append(d)});c.append(st);
+ const ch=el("div","chips");T.forEach((k,n)=>{const d=el("div","chip p"+pts[n],"№"+(n+1));d.append(el("small","",pts[n]+" б."));ch.append(d)});c.append(ch);
+ let r;
+ if(pc>=90)r="Відмінно! Ви впевнено володієте базовими конструкціями Python та основами ООП. Можна братися за складніші задачі.";
+ else if(pc>=70)r="Дуже добре! Основа міцна. Перегляньте пояснення до завдань, де були помилки, і закріпіть їх на практиці.";
+ else if(pc>=50)r="Непогано, але є прогалини. Повторіть теми, де набрано найменше балів (див. рівні завдань), і пройдіть тренажер ще раз.";
+ else r="Це хороший початок: тепер ви бачите, що саме варто повторити. Перечитайте конспект, запустіть приклади в Python самостійно та спробуйте знову.";
+ const lv={};T.forEach((k,n)=>{(lv[k.lv]=lv[k.lv]||[0,0]);lv[k.lv][0]+=pts[n];lv[k.lv][1]+=3});
+ const weak=Object.keys(lv).filter(l=>lv[l][0]<lv[l][1]*0.6);
+ c.append(msg("ex","Рефлексія: ",r+(weak.length?" Варто повторити рівні: "+weak.join(", ").toLowerCase()+".":"")));
+ app.append(c);
+}
+intro();
+</script>
+</body>
+</html>
